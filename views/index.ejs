@@ -8,8 +8,10 @@
 <body>
   <h1>Excel Uploader</h1>
   <form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="excelFile" accept=".xlsx, .xls">
+    <label for="file">Upload Excel File:</label>
+    <input type="file" name="file" id="file" accept=".xlsx">
     <button type="submit">Upload</button>
   </form>
+  
 </body>
 </html>

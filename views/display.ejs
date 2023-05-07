@@ -7,34 +7,48 @@
 </head>
 <body>
   <h1>Data Display</h1>
-  <form action="/display" method="post">
-    <label for="sheet">Select Sheet:</label>
-    <select name="sheet" id="sheet">
-      <% sheetNames.forEach((sheetName) => { %>
-        <option value="<%= sheetName %>"><%= sheetName %></option>
-      <% }) %>
-    </select>
-    <button type="submit">Display</button>
-  </form>
-  <% if (selectedSheet) { %>
-    <table>
-      <thead>
-        <tr>
-          <% for (const key in data[0]) { %>
-            <th><%= key %></th>
-          <% } %>
-        </tr>
-      </thead>
-      <tbody>
-        <% data.forEach((row) => { %>
+  <% if (fileNames && fileNames.length > 0) { %>
+    <form action="/display" method="post">
+      <label for="file">Select File:</label>
+      <select name="file" id="file">
+        <% fileNames.forEach((fileName) => { %>
+          <option value="<%= fileName %>" <%= selectedFile === fileName ? 'selected' : '' %>><%= fileName %></option>
+        <% }) %>
+      </select>
+      <button type="submit">Display</button>
+    </form>
+  <% } %>
+  <% if (selectedFile && sheetNames.length > 0) { %>
+    <form action="/display" method="post">
+      <label for="sheet">Select Sheet:</label>
+      <select name="sheet" id="sheet">
+        <% sheetNames.forEach((sheetName) => { %>
+          <option value="<%= sheetName %>"><%= sheetName %></option>
+        <% }) %>
+      </select>
+      <input type="hidden" name="file" value="<%= selectedFile %>">
+      <button type="submit">Display Sheet</button>
+    </form>
+    <% if (selectedSheetName && data) { %>
+      <table>
+        <thead>
           <tr>
-            <% for (const key in row) { %>
-              <td><%= row[key] %></td>
+            <% for (const key in data[0]) { %>
+              <th><%= key %></th>
             <% } %>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% data.forEach((row) => { %>
+            <tr>
+              <% for (const key in row) { %>
+                <td><%= row[key] %></td>
+              <% } %>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
   <% } %>
 </body>
 </html>

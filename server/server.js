@@ -1,33 +1,41 @@
 const express = require('express');
 const multer = require('multer');
 const xlsx = require('xlsx');
-const app = express();
-const upload = multer({ dest: 'uploads/' });
+const fs = require('fs');
+const path = require('path');
 
+const app = express();
+const upload = multer({ dest: 'uploads/' }).single('file');
+
+
+
+app.set('views', './views');
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
+
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.post('/upload', upload.single('excelFile'), (req, res) => {
-  const workbook = xlsx.readFile(req.file.path);
-  const sheetNames = workbook.SheetNames;
-  const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-
-  res.render('display', { data });
+app.post('/upload', upload.single('file'), (req, res) => {
+  res.redirect('/display');
 });
 
-app.post('/display', upload.single('excelFile'), (req, res) => {
-  const workbook = xlsx.readFile(req.file.path);
-  const sheetNames = workbook.SheetNames;
-  const selectedSheetName = req.body.sheet;
-  const selectedSheet = workbook.Sheets[selectedSheetName];
-  const data = xlsx.utils.sheet_to_json(selectedSheet);
+app.post('/display', (req, res) => {
+  const files = fs.readdirSync('uploads');
+  const fileNames = files
+    .filter(file => path.extname(file).toLowerCase() === '.xlsx')
+    .map(file => file);
 
-  res.render('display', { sheetNames, selectedSheetName, data });
+  const selectedFile = req.body.file;
+  const selectedFilePath = selectedFile ? path.join('uploads', selectedFile) : null;
+  const workbook = selectedFilePath ? xlsx.readFile(selectedFilePath) : null;
+  const sheetNames = workbook ? workbook.SheetNames : [];
+
+  res.render('display', { fileNames: fileNames, selectedFile: selectedFile, sheetNames: sheetNames });
 });
+
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
